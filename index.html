@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🐝 Auto-Ping Discord Bot</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* Base & Body */
+* {margin:0;padding:0;box-sizing:border-box;}
+body {font-family:'Montserrat',sans-serif; background:#050a14; color:#fff; min-height:100vh; overflow-x:hidden; position:relative;}
+a {text-decoration:none; color:inherit;}
+
+/* Background Effects */
+.background-gradient {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 50%, rgba(29,78,216,0.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.08) 0%, transparent 50%);
+  pointer-events:none; z-index:0; animation: gradientShift 15s ease infinite;
+}
+@keyframes gradientShift {0%,100%{opacity:1;}50%{opacity:0.8;}}
+
+.stars {position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;}
+.star {position:absolute; background:#fff; border-radius:50%; animation: twinkle 4s infinite;}
+.star.small {width:1px;height:1px;}
+.star.medium {width:2px;height:2px;}
+.star.large {width:3px;height:3px; box-shadow:0 0 8px rgba(255,255,255,0.8);}
+@keyframes twinkle {0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.2);}}
+
+.floating-orb {position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation: float 20s infinite ease-in-out;}
+.orb1 {width:400px;height:400px;background:rgba(37,99,235,0.2);top:-200px;right:-200px;}
+.orb2 {width:350px;height:350px;background:rgba(59,130,246,0.15);bottom:-150px;left:-150px;animation-delay:-10s;}
+@keyframes float {0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-30px) scale(1.1);}66%{transform:translate(-20px,20px) scale(0.9);}}
+
+/* Navbar */
+.navbar {position:fixed;top:30px;left:50%;transform:translateX(-50%);background:rgba(10,15,25,0.7);backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(37,99,235,0.2);border-radius:16px;padding:18px 45px;display:flex;align-items:center;justify-content:space-between;z-index:1000;min-width:850px;box-shadow:0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);}
+.nav-left {display:flex;align-items:center;gap:80px;}
+.logo {font-size:20px;font-weight:800;color:#fff;position:relative;}
+.logo::after {content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:linear-gradient(90deg,#3b82f6,#2563eb);transition:width 0.3s ease;}
+.logo:hover::after {width:100%;}
+.cta-button {background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;padding:12px 32px;border-radius:10px;font-weight:700;font-size:13px;border:none;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(37,99,235,0.3);}
+.cta-button::before {content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.5s ease;}
+.cta-button:hover::before {left:100%;}
+
+/* Hero Section */
+.hero {min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:2;text-align:center;padding:0 20px;}
+.hero h1 {font-size:72px;font-weight:900;margin-bottom:28px;letter-spacing:-2px;line-height:1.05;}
+.hero h1 .brand {background:linear-gradient(135deg,#60a5fa 0%,#3b82f6 25%,#2563eb 50%,#1d4ed8 75%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:brandGlow 4s ease infinite;filter:drop-shadow(0 0 40px rgba(37,99,235,0.7)) drop-shadow(0 0 80px rgba(59,130,246,0.5));}
+@keyframes brandGlow {0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.hero p {font-size:19px;color:rgba(255,255,255,0.6);max-width:640px;margin-bottom:50px;line-height:1.7;}
+.hero-buttons {display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+.btn-primary {background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;padding:19px 48px;border-radius:12px;font-weight:700;font-size:16px;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(37,99,235,0.4);}
+.btn-primary span {position:relative;z-index:1;}
+.btn-secondary {background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.15);color:#fff;padding:19px 48px;border-radius:12px;font-weight:700;font-size:16px;position:relative;overflow:hidden;backdrop-filter:blur(10px);}
+.btn-secondary span {position:relative;z-index:1;}
+
+/* Features Section */
+.features-section {position:relative;z-index:2;padding:120px 20px;max-width:1400px;margin:0 auto;}
+.section-header {text-align:center;margin-bottom:80px;}
+.section-badge {display:inline-block;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.3);padding:10px 24px;border-radius:8px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:24px;text-transform:uppercase;letter-spacing:1px;}
+.section-title {font-size:56px;font-weight:900;letter-spacing:-2px;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.7) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.section-description {font-size:18px;color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto;line-height:1.7;}
+.features-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px;margin-bottom:60px;}
+.feature-card {background:rgba(10,15,25,0.5);backdrop-filter:blur(20px);border:1px solid rgba(37,99,235,0.15);border-radius:20px;padding:40px;transition:all 0.5s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;cursor:pointer;}
+.feature-icon {width:60px;height:60px;background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(59,130,246,0.1));border:1px solid rgba(37,99,235,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:24px;color:#3b82f6;}
+.feature-title {font-size:22px;font-weight:700;margin-bottom:12px;color:#fff;letter-spacing:-0.5px;}
+.feature-description {font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;font-weight:500;}
+.feature-card:hover {transform:translateY(-8px);border-color:rgba(37,99,235,0.4);box-shadow:0 20px 60px rgba(37,99,235,0.2);}
+.feature-card:hover .feature-icon {transform:scale(1.1) rotate(5deg);}
+
+/* Slash Command Table */
+.commands-table {width:100%;max-width:900px;margin:40px auto;border-collapse:collapse;}
+.commands-table th, .commands-table td {padding:14px 12px;border:1px solid rgba(255,255,255,0.1);}
+.commands-table th {background:rgba(37,99,235,0.2);font-weight:700;}
+.commands-table td {background:rgba(10,15,25,0.5);text-align:left;font-weight:500;}
+
+/* Responsive */
+@media(max-width:900px){.hero h1{font-size:48px;}.section-title{font-size:38px;}.features-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="background-gradient"></div>
+<div class="stars">
+  <div class="star small" style="top:10%; left:20%;"></div>
+  <div class="star medium" style="top:50%; left:70%;"></div>
+  <div class="star large" style="top:80%; left:40%;"></div>
+</div>
+<div class="floating-orb orb1"></div>
+<div class="floating-orb orb2"></div>
+
+<div class="navbar">
+  <div class="nav-left">
+    <a href="#" class="logo">🐝 Auto-Ping Bot</a>
+  </div>
+  <button class="cta-button">Invite Bot</button>
+</div>
+
+<section class="hero">
+  <h1>Welcome to <span class="brand">Auto-Ping Bot</span></h1>
+  <p>The ultimate Discord bot to automatically ping new members in selected channels, with ephemeral pings and owner-friendly configuration.</p>
+  <div class="hero-buttons">
+    <a href="#" class="btn-primary"><span>Invite Now</span></a>
+    <a href="#features" class="btn-secondary"><span>View Features</span></a>
+  </div>
+</section>
+
+<section class="features-section" id="features">
+  <div class="section-header">
+    <div class="section-badge">Core Features</div>
+    <h2 class="section-title">What Auto-Ping Bot Can Do</h2>
+    <p class="section-description">A lightweight, highly-configurable bot for welcoming new members without cluttering your Discord server.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">person_add</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Automatic Ping on Join</h3>
+        <p class="feature-description">Pings new members in selected channels and auto-deletes after a set delay. Supports up to 5 channels.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">settings</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Interactive Configuration UI</h3>
+        <p class="feature-description">Owner-only /autoping command with dropdown and buttons to select channels and save or clear selections.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">notifications</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Ping Test</h3>
+        <p class="feature-description">Owner-only /pingtest command sends temporary pings to configured channels with a 10s cooldown.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">info</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Status Reporting</h3>
+        <p class="feature-description">/autoping_status shows all configured channels in a read-only embed for transparency.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">timer</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Auto-Delete Delay</h3>
+        <p class="feature-description">Set the duration before ping messages are auto-deleted using /autoping_delay (1–60s, owner-only).</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><span class="material-icons">storage</span></div>
+      <div class="feature-content">
+        <h3 class="feature-title">Persistent Storage</h3>
+        <p class="feature-description">Stores channel configurations and delay settings for each server using JSON.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-badge">Slash Commands</div>
+    <h2 class="section-title">Available Commands</h2>
+  </div>
+
+  <table class="commands-table">
+    <thead>
+      <tr>
+        <th>Command</th>
+        <th>Description</th>
+        <th>Permissions</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>/autoping</td><td>Configure auto-ping channels</td><td>Owner only</td><td>Opens embed UI with dropdown + buttons</td></tr>
+      <tr><td>/pingtest [message]</td><td>Sends a test ping to all auto-ping channels</td><td>Owner only</td><td>Rate-limited: 10s per server</td></tr>
+      <tr><td>/autoping_status</td><td>Report issues directly to our support team</td><td>Anyone</td><td>Read-only</td></tr>
+      <tr><td>/autoping_delay [seconds]</td><td>Set auto-delete delay</td><td>Owner only</td><td>1–60 seconds</td></tr>
+    </tbody>
+  </table>
+</section>
+</body>
+</html>
